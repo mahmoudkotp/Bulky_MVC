@@ -3,6 +3,8 @@ using BulkyBook.DataAccess.Data;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using BulkyBook.Models.ViewModels;
+
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
@@ -25,32 +27,56 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 			return View(objProductList);
 		}
 
-		public IActionResult Create()
+		public IActionResult Upsert(int? id)
 		{
-			IEnumerable<SelectListItem> CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
-			{
-				Text = u.Name,
-				Value = u.Id.ToString(),
-			});
+			//IEnumerable<SelectListItem> CategoryList =
 			// Passing to View
 			//ViewBag.Category = CategoryList;
-			ViewData["CategoryList"] = CategoryList;
-			return View();
+			//ViewData["CategoryList"] = CategoryList;
+
+			ProductVM productVM = new ()
+			{				
+				CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+				{
+					Text = u.Name,
+					Value = u.Id.ToString(),
+				}),
+				Product = new Product()
+			};
+			if(id == null || id == 0)
+			{
+				// This will be true for (Insert/Create)
+				return View(productVM);
+			}
+			else
+			{
+				// This will be true for (Update)
+				productVM.Product = _unitOfWork.Product.Get(u => u.Id == id);
+				return View(productVM);
+			}
 		}
 
 		[HttpPost]
-		public IActionResult Create(Product obj)
+		public IActionResult Upsert(ProductVM productVM, IFormFile? file)
 		{
 			
 			if (ModelState.IsValid)
 			{
-				_unitOfWork.Product.Add(obj);
+				_unitOfWork.Product.Add(productVM.Product);
 				_unitOfWork.Save();
 				TempData["success"] = "Product created successfully";
 				// Go back to the index page (Product)
 				return RedirectToAction("Index");
 			}
-			return View();
+			else
+			{
+				productVM.CategoryList = _unitOfWork.Category.GetAll().Select(u => new SelectListItem
+					{
+						Text = u.Name,
+						Value = u.Id.ToString(),
+					});
+				return View(productVM);
+			}
 		}
 
 		public IActionResult Edit(int? id)
