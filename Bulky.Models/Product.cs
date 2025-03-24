@@ -52,5 +52,12 @@ namespace BulkyBook.Models
 		public Category Category { get; set; }
 		[ValidateNever]
 		public string ImageUrl { get; set; }
+
+		//// Foreign Key
+		//public int CoverTypeId { get; set; }
+
+		//// Navigation Properties
+		//public Category Category { get; set; }  // ✅ Ensure this exists
+		//public CoverType CoverType { get; set; }  // ✅ Ensure this exists
 	}
 }

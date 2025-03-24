@@ -10,7 +10,7 @@ namespace BulkyBook.Models.ViewModels
 {
 	public class ProductVM
 	{
-		public Product Product { get; set; }
+		public Product Product { get; set; } = new Product(); // Ensure it's initialized
 		[ValidateNever]
 		public IEnumerable<SelectListItem> CategoryList { get; set; }
 	}

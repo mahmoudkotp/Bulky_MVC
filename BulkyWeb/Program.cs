@@ -15,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 // Registration of Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
+//// Registering the IWebHostEnvironment
+//builder.Services.AddSingleton<IWebHostEnvironment>(builder.Environment);
 
 var app = builder.Build();
 
