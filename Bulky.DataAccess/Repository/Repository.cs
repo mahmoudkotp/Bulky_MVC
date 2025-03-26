@@ -42,9 +42,11 @@ namespace BulkyBook.DataAccess.Repository
 			return query.FirstOrDefault();
 		}
 
+
 		public IEnumerable<T> GetAll(string? includeProperties = null)
 		{
 			IQueryable<T> query = dbSet;
+			
 			if (!string.IsNullOrEmpty(includeProperties))
 			{
 				foreach (var includeProperty in includeProperties.

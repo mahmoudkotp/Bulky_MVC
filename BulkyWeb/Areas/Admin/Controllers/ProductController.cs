@@ -1,17 +1,17 @@
 ﻿using BulkyBook.DataAccess.Repository.IRepository;
-using BulkyBook.DataAccess.Data;
 using BulkyBook.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using BulkyBook.Models.ViewModels;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.DotNet.Scaffolding.Shared.Messaging;
+using BulkyBook.Utility;
+using Microsoft.AspNetCore.Authorization;
 
 
 
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
 	[Area("Admin")]
+	[Authorize(Roles = SD.Role_Admin)]
 	public class ProductController : Controller
 	{
 		// I fixed this error with changing the access modifier from internal
