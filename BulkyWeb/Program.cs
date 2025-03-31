@@ -25,6 +25,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 	options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
 });
 
+
+
 builder.Services.AddRazorPages();
 // Registration of Repository
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -40,6 +42,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();
 
@@ -53,5 +57,7 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{area=Customer}/{controller=Home}/{action=Index}/{id?}"
 );
+
+
 
 app.Run();

@@ -34,36 +34,45 @@
                              <a class="nav-link" asp-area="Customer" asp-controller="Home" asp-action="privacy">privacy</a> 
                         </li> 
 
-                        @if(User.IsInRole(SD.Role_Admin))
-                        {
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Content Management
-                                </a>
-                                <ul class="dropdown-menu">
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
+                       @*  @if(User.IsInRole(SD.Role_Admin)) 
+                          {   *@
+                            <li class="nav-item dropdown"> 
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
+                                    Content Management 
+                                </a> 
+                                 <ul class="dropdown-menu"> 
+                                    <li class="nav-item"> 
+                                      <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a> 
+                                   </li> 
+                                    <li class="nav-item"> 
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a> 
+                                 </li> 
+                                   <li class="nav-item"> 
+                                       <a class="dropdown-item" asp-area="Admin" asp-controller="Company" asp-action="Index">Company</a> 
+                                 </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                 </ul> 
+                             </li> 
+                         @* } *@
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                                <i class="bi bi-cart"></i> &nbsp;
+                            </a>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <div class="container bottom-50">
+        <main role="main" class="pb-3 mb-3">
             <partial name="_Notification" />
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-white bg-primary fixed-bottom">
+    <footer class="border-top footer text-white bg-primary mt-5">
         <div class="container text-center">
             Made with <i class="bi bi-heart-fill"></i>  &copy; 2025 - BulkyBookWeb
         </div>

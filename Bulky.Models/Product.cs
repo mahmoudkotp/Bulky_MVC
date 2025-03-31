@@ -53,7 +53,22 @@ namespace BulkyBook.Models
 		[ValidateNever]
 		public string ImageUrl { get; set; }
 
-		//[ValidateNever]
-		//public List<ProductImage> ProductImages { get; set; }
+
+		////more then 32000
+		//public int Id { get; set; }
+		//public string ProductName { get; set; }
+		//public string ProductDescription { get; set; }
+		//public decimal Price { get; set; }
+		//public short CategoryId { get; set; }
+		////each product exist in one category
+		//public Category Category { get; set; }
+		//public string ImageUrl { get; set; }
+		//public int QuantityStock { get; set; }
+		//public DateTime AddedDate { get; set; }
+		//public short CompanyId { get; set; }
+		//public decimal Width { get; set; }
+		//public decimal Height { get; set; }
+		//public string ProductModel { get; set; }
+
 	}
 }

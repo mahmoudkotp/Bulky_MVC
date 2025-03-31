@@ -8,7 +8,7 @@ using BulkyBook.Utility;
 namespace BulkyBookWeb.Areas.Admin.Controllers
 {
 	[Area("Admin")]
-	[Authorize(Roles = SD.Role_Admin)]
+	//[Authorize(Roles = SD.Role_Admin)]
 	public class CategoryController : Controller
 	{
 		// I fixed this error with changing the access modifier from internal
