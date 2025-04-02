@@ -5,6 +5,7 @@ using BulkyBook.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using BulkyBook.Utility;
 
 namespace BulkyBookWeb.Areas.Customer.Controllers
 {
@@ -12,7 +13,11 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 	[Authorize]
 	public class CartController : Controller
 	{
+
 		private readonly IUnitOfWork _uitOfWork;
+		// لربط القيم القادمة من نموذج الطلب(Form)
+		//إلى خاصية في كلاس الصفحة أو الكنترولر تلقائيًا، بدلاً من تمريرها كمعاملات في Method Parameters.
+		[BindProperty]
 		public ShoppingCartVM ShoppingCartVM { get; set; }
 		public CartController(IUnitOfWork unitOfWork)
 		{
@@ -69,6 +74,73 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 			return View(ShoppingCartVM);
 		}
 
+		[HttpPost]
+		[ActionName("Summary")]
+		public IActionResult SummaryPost()
+		{
+			var claimsIdentity = (ClaimsIdentity)User.Identity;
+			var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+
+			ShoppingCartVM.ShoppingCartList = _uitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId
+				== userId, includeProperties: "Product");
+
+			ShoppingCartVM.OrderHeader.OrderDate = System.DateTime.Now;
+			ShoppingCartVM.OrderHeader.ApplicationUserId = userId;
+
+			ApplicationUser applicationUser = _uitOfWork.ApplicationUser.Get(u => u.Id == userId);		
+
+			foreach (var cart in ShoppingCartVM.ShoppingCartList)
+			{
+				cart.Price = GetPriceBasedOnQuantity(cart);
+				ShoppingCartVM.OrderHeader.OrderTotal += (cart.Price * cart.Count);
+			}
+
+			if (applicationUser.CompanyId.GetValueOrDefault()==0)
+			{
+				// A Customer User
+				ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusPending;
+				ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusPending;
+			}
+			else
+			{
+				// A company User
+				ShoppingCartVM.OrderHeader.PaymentStatus = SD.PaymentStatusDelayedPayment;
+				ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
+			}
+
+			_uitOfWork.OrderHeader.Add(ShoppingCartVM.OrderHeader);
+			_uitOfWork.Save();
+
+			foreach (var cart in ShoppingCartVM.ShoppingCartList)
+			{
+				OrderDetail orderDetail = new()
+				{
+					ProductId = cart.ProductId,
+					OrderHeaderId = ShoppingCartVM.OrderHeader.Id,
+					Price = cart.Price,
+					Count = cart.Count
+				};
+				_uitOfWork.OrderDetail.Add(orderDetail);
+				_uitOfWork.Save();
+			}
+
+			if (applicationUser.CompanyId.GetValueOrDefault() == 0)
+			{
+				// A Customer User
+				
+			}
+			 
+			return RedirectToAction(nameof(OrderConfirmation), new {id=ShoppingCartVM.OrderHeader.Id});
+			
+		}
+
+		public IActionResult OrderConfirmation(int id)
+		{
+			
+
+			return View(id);
+		}
+
 		public IActionResult Plus(int cartId)
 		{
 			var cartFromDb = _uitOfWork.ShoppingCart.Get(u => u.Id == cartId);
@@ -103,7 +175,6 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 			_uitOfWork.Save();
 			return RedirectToAction(nameof(Index));
 		}
-
 
 		private double GetPriceBasedOnQuantity(ShoppingCart shoppingCart)
 		{
