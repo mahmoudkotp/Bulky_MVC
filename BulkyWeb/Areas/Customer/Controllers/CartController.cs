@@ -17,14 +17,14 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 	public class CartController : Controller
 	{
 
-		private readonly IUnitOfWork _uitOfWork;
+		private readonly IUnitOfWork _unitOfWork;
 		// لربط القيم القادمة من نموذج الطلب(Form)
 		//إلى خاصية في كلاس الصفحة أو الكنترولر تلقائيًا، بدلاً من تمريرها كمعاملات في Method Parameters.
 		[BindProperty]
 		public ShoppingCartVM ShoppingCartVM { get; set; }
 		public CartController(IUnitOfWork unitOfWork)
 		{
-			_uitOfWork = unitOfWork;
+			_unitOfWork = unitOfWork;
 		}
 
 		public IActionResult Index()
@@ -34,7 +34,7 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
 			ShoppingCartVM = new()
 			{
-				ShoppingCartList = _uitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId
+				ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId
 				== userId, includeProperties: "Product"),
 				OrderHeader = new()
 			};
@@ -55,12 +55,12 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
 			ShoppingCartVM = new()
 			{
-				ShoppingCartList = _uitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId
+				ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId
 				== userId, includeProperties: "Product"),
 				OrderHeader = new()
 			};
 
-			ShoppingCartVM.OrderHeader.ApplicationUser = _uitOfWork.ApplicationUser.Get(u => u.Id == userId);
+			ShoppingCartVM.OrderHeader.ApplicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);
 
 			ShoppingCartVM.OrderHeader.Name = ShoppingCartVM.OrderHeader.ApplicationUser.Name;
 			ShoppingCartVM.OrderHeader.PhoneNumber = ShoppingCartVM.OrderHeader.ApplicationUser.PhoneNumber;
@@ -84,13 +84,13 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 			var claimsIdentity = (ClaimsIdentity)User.Identity;
 			var userId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
-			ShoppingCartVM.ShoppingCartList = _uitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId
+			ShoppingCartVM.ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId
 				== userId, includeProperties: "Product");
 
 			ShoppingCartVM.OrderHeader.OrderDate = System.DateTime.Now;
 			ShoppingCartVM.OrderHeader.ApplicationUserId = userId;
 
-			ApplicationUser applicationUser = _uitOfWork.ApplicationUser.Get(u => u.Id == userId);		
+			ApplicationUser applicationUser = _unitOfWork.ApplicationUser.Get(u => u.Id == userId);		
 
 			foreach (var cart in ShoppingCartVM.ShoppingCartList)
 			{
@@ -111,8 +111,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 				ShoppingCartVM.OrderHeader.OrderStatus = SD.StatusApproved;
 			}
 
-			_uitOfWork.OrderHeader.Add(ShoppingCartVM.OrderHeader);
-			_uitOfWork.Save();
+			_unitOfWork.OrderHeader.Add(ShoppingCartVM.OrderHeader);
+			_unitOfWork.Save();
 
 			foreach (var cart in ShoppingCartVM.ShoppingCartList)
 			{
@@ -123,8 +123,8 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 					Price = cart.Price,
 					Count = cart.Count
 				};
-				_uitOfWork.OrderDetail.Add(orderDetail);
-				_uitOfWork.Save();
+				_unitOfWork.OrderDetail.Add(orderDetail);
+				_unitOfWork.Save();
 			}
 
 			if (applicationUser.CompanyId.GetValueOrDefault() == 0)
@@ -161,9 +161,9 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
 				var service = new SessionService();
 				Session session = service.Create(options);
-				_uitOfWork.OrderHeader.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.Id,
+				_unitOfWork.OrderHeader.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.Id,
 					session.Id, session.PaymentIntentId);
-				_uitOfWork.Save();
+				_unitOfWork.Save();
 				Response.Headers.Add("Location", session.Url);
 				return new StatusCodeResult(303);
 			}
@@ -174,61 +174,61 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
 		public IActionResult OrderConfirmation(int id)
 		{
-			OrderHeader orderHeader = _uitOfWork.OrderHeader.Get(u => u.Id == id, includeProperties: "ApplicationUser");
+			OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == id, includeProperties: "ApplicationUser");
 			if(orderHeader.PaymentStatus != SD.PaymentStatusApproved)
 			{ // this an order by customer
 				var service = new SessionService();
 				Session session = service.Get(orderHeader.SessionId);
 				if (session.PaymentStatus == "paid")
 				{
-					_uitOfWork.OrderHeader.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.Id, session.Id,
+					_unitOfWork.OrderHeader.UpdateStripePaymentId(ShoppingCartVM.OrderHeader.Id, session.Id,
 						session.PaymentIntentId);
-					_uitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
-					_uitOfWork.Save();
+					_unitOfWork.OrderHeader.UpdateStatus(id, SD.StatusApproved, SD.PaymentStatusApproved);
+					_unitOfWork.Save();
 				}
 			}
 			
-			List<ShoppingCart> shoppingCart = _uitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId ==
+			List<ShoppingCart> shoppingCart = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId ==
 			orderHeader.ApplicationUserId).ToList();
 
-			_uitOfWork.ShoppingCart.RemoveRange(shoppingCart);
-			_uitOfWork.Save();
+			_unitOfWork.ShoppingCart.RemoveRange(shoppingCart);
+			_unitOfWork.Save();
 
 			return View(id);
 		}
 
 		public IActionResult Plus(int cartId)
 		{
-			var cartFromDb = _uitOfWork.ShoppingCart.Get(u => u.Id == cartId);
+			var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);
 			cartFromDb.Count += 1;
-			_uitOfWork.ShoppingCart.Update(cartFromDb);
-			_uitOfWork.Save();
+			_unitOfWork.ShoppingCart.Update(cartFromDb);
+			_unitOfWork.Save();
 			return RedirectToAction(nameof(Index));
 		}
 
 		public IActionResult Minus(int cartId)
 		{
-			var cartFromDb = _uitOfWork.ShoppingCart.Get(u => u.Id == cartId);
+			var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);
 			if (cartFromDb.Count <= 1)
 			{
 				//Remove
-				_uitOfWork.ShoppingCart.Remove(cartFromDb);
+				_unitOfWork.ShoppingCart.Remove(cartFromDb);
 			}
 			else
 			{
 				cartFromDb.Count -= 1;
-				_uitOfWork.ShoppingCart.Update(cartFromDb);
+				_unitOfWork.ShoppingCart.Update(cartFromDb);
 			}
 
-			_uitOfWork.Save();
+			_unitOfWork.Save();
 			return RedirectToAction(nameof(Index));
 		}
 
 		public IActionResult Remove(int cartId)
 		{
-			var cartFromDb = _uitOfWork.ShoppingCart.Get(u => u.Id == cartId);
-			_uitOfWork.ShoppingCart.Remove(cartFromDb);
-			_uitOfWork.Save();
+			var cartFromDb = _unitOfWork.ShoppingCart.Get(u => u.Id == cartId);
+			_unitOfWork.ShoppingCart.Remove(cartFromDb);
+			_unitOfWork.Save();
 			return RedirectToAction(nameof(Index));
 		}
 
