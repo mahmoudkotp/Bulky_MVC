@@ -12,12 +12,10 @@ namespace BulkyBook.Models
 	public class OrderHeader
 	{
 		public int Id { get; set; }
-		//public int CustomerId { get; set; }
 		public string ApplicationUserId { get; set; }
 
 		[ForeignKey("ApplicationUserId")]
 		[ValidateNever]
-		//public Customer Customer { get; set; }
 		public ApplicationUser ApplicationUser { get; set; }
 
 		public DateTime OrderDate { get; set; }
@@ -38,7 +36,6 @@ namespace BulkyBook.Models
 		[Required]
 		public string PhoneNumber { get; set; }
 		[Required]
-		//public string ShippingAddress { get; set; } = string.Empty;
 		public string StreetAddress { get; set; }
 		[Required]
 		public string City { get; set; }
@@ -49,6 +46,5 @@ namespace BulkyBook.Models
 		[Required]
 		public string Name { get; set; }
 
-		//public ICollection<OrderItem> items { get; set; }
 	}
 }

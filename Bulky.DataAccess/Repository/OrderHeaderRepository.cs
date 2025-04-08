@@ -38,7 +38,7 @@ namespace BulkyBook.DataAccess.Repository
 
 		}
 
-		public void UpdateStatusPaymentId(int id, string sessionId, string? paymentIntentId = null)
+		public void UpdateStripePaymentId(int id, string sessionId, string? paymentIntentId = null)
 		{
 			var orderFromDb = _db.OrderHeaders.FirstOrDefault(u => u.Id == id);
 			if (!string.IsNullOrEmpty(sessionId))
