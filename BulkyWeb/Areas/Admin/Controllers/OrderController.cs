@@ -204,7 +204,8 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 		[HttpGet]
 		public IActionResult GetAll(string status)
 		{
-			IEnumerable<OrderHeader> ObjOrderHeader = _unitOfWork.OrderHeader.GetAll(includeProperties: "ApplicationUser").ToList();
+			IEnumerable<OrderHeader> ObjOrderHeader;
+			//= _unitOfWork.OrderHeader.GetAll(includeProperties: "ApplicationUser").ToList()
 
 			if (User.IsInRole(SD.Role_Admin) || User.IsInRole(SD.Role_Employee))
 			{
@@ -212,9 +213,8 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 			}
 			else
 			{
-				var claimIdintity = (ClaimsIdentity)User.Identity;
-				var userId = claimIdintity.FindFirst(ClaimTypes.NameIdentifier).Value;
-
+				var claimsIdintity = (ClaimsIdentity)User.Identity;
+				var userId = claimsIdintity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
 				ObjOrderHeader = _unitOfWork.OrderHeader.GetAll(u => u.ApplicationUserId == userId, includeProperties: "ApplicationUser").ToList();
 			}
