@@ -142,12 +142,13 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 			}
 			// A Customer User (Stripe)
 			var domain = "https://localhost:7277/";
-			var options = new Stripe.Checkout.SessionCreateOptions
+			var options = new SessionCreateOptions
 			{
 				SuccessUrl = domain + $"admin/order/PaymentConfirmation?orderHeaderId={OrderVM.OrderHeader.Id}",
 				CancelUrl = domain + $"admin/order/details?orderId={OrderVM.OrderHeader.Id}",
-				LineItems = new List<Stripe.Checkout.SessionLineItemOptions>(),
+				LineItems = new List<SessionLineItemOptions>(),
 				Mode = "payment",
+
 			};
 
 			foreach (var item in OrderVM.OrderDetail)
@@ -184,7 +185,7 @@ namespace BulkyBookWeb.Areas.Admin.Controllers
 		public IActionResult PaymentConfirmation(int orderHeaderId)
 		{
 			OrderHeader orderHeader = _unitOfWork.OrderHeader.Get(u => u.Id == orderHeaderId);
-			if (orderHeader.PaymentStatus == SD.PaymentStatusApproved)
+			if (orderHeader.PaymentStatus == SD.PaymentStatusDelayedPayment)
 			{ // this an order by Company
 				var service = new SessionService();
 				Session session = service.Get(orderHeader.SessionId);

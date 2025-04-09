@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Security.Claims;
 using BulkyBook.DataAccess.Repository.IRepository;
 using BulkyBook.Models;
+using BulkyBook.Utility;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,14 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 
 		public IActionResult Index()
 		{
+			var claimsIdentity = (ClaimsIdentity)User.Identity;
+			var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 			
+			if (claim != null)
+			{
+				HttpContext.Session.SetInt32(SD.SessionCart,
+				_unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == claim.Value).Count());
+			}
 			IEnumerable<Product> productList = _unitOfWork.Product.GetAll(includeProperties: "Category");
 			// The home page
 			return View(productList);
@@ -52,15 +60,18 @@ namespace BulkyBookWeb.Areas.Customer.Controllers
 				// Shopping Cart already exists for that product
 				cartFromDb.Count += shoppingCart.Count;
 				_unitOfWork.ShoppingCart.Update(cartFromDb);
+				_unitOfWork.Save();
 			}
 			else
 			{
 				// Add shopping cart
 				_unitOfWork.ShoppingCart.Add(shoppingCart);
+				_unitOfWork.Save();
+				HttpContext.Session.SetInt32(SD.SessionCart, _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == userId).Count());
 			}
 
 			TempData["success"] = "Cart Updated successfully";
-			_unitOfWork.Save();
+			
 
 			return RedirectToAction(nameof(Index));
 		}
