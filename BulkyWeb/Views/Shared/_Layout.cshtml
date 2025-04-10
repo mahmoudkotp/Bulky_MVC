@@ -28,51 +28,45 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav me-auto">
-                                              
+
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Customer" asp-controller="Home" asp-action="Index">Home</a>
-                        </li> 
+                        </li>
 
                         <li class="nav-item">
                             <a class="nav-link" asp-area="Admin" asp-controller="Order" asp-action="Index">Manage Order</a>
-                        </li> 
+                        </li>
 
-                       @if(User.IsInRole(SD.Role_Admin)) 
-                          {  
-                            <li class="nav-item dropdown"> 
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 
-                                    Content Management 
-                                </a> 
-                                 <ul class="dropdown-menu"> 
-                                    <li class="nav-item"> 
-                                      <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a> 
-                                   </li> 
-                                    <li class="nav-item"> 
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a> 
-                                 </li> 
-                                   <li class="nav-item"> 
-                                       <a class="dropdown-item" asp-area="Admin" asp-controller="Company" asp-action="Index">Company</a> 
-                                 </li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                 </ul> 
-                             </li> 
-                          }
-                        @if (HttpContextAccessor.HttpContext.Session.GetInt32(SD.SessionCart)!=null )
+                        @if (User.IsInRole(SD.Role_Admin))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
-                                    <i class="bi bi-cart"></i> &nbsp;
-                                        (@HttpContextAccessor.HttpContext.Session.GetInt32(SD.SessionCart))
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Content Management
                                 </a>
-                            </li>
-                        } else{
-                            <li class="nav-item">
-                                <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
-                                    <i class="bi bi-cart"></i> &nbsp;
-                                    (0)
-                                </a>
+                                <ul class="dropdown-menu">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">Category</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">Product</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-area="Admin" asp-controller="Company" asp-action="Index">Company</a>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" asp-area="Identity" asp-page="/Account/Register">Create User</a>
+                                    </li>
+                                </ul>
                             </li>
                         }
+
+                        <li class="nav-item">
+                            <a class="nav-link" asp-area="Customer" asp-controller="Cart" asp-action="Index">
+                                @await Component.InvokeAsync("ShoppingCart")
+                            </a>
+                        </li>
+
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
